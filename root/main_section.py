@@ -1,12 +1,13 @@
 from sqlalchemy import select
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 
 from root.db_controller import engine
 import root.models as models
 
-session = Session(bind=engine)
-# Session = sessionmaker(bind=engine)
-# session = Session()
+Session = sessionmaker(bind=engine)
+session = Session()
+# from sqlalchemy.orm import Session
+# session = Session(bind=engine)
 
 
 class MS:
@@ -15,16 +16,27 @@ class MS:
         persons = session.execute(
             select(models.Person)
         ).all()
-        return [person[0].name for person in persons]
+        # Possible use index, but not recommended:
+        # return [person[0].name for person in persons]
+        return [person.Person.name for person in persons]
 
     @classmethod
     def select_scalars(cls):
+        """
+        Using scalars()
+        :return:
+        """
         return session.execute(
             select(models.Person.name)
         ).scalars().all()
 
     @classmethod
     def inner_join(cls):
+        """
+        Use scalars() only if no need access to the right model in most cases
+        with INNER JOIN
+        :return:
+        """
         result = session.execute(
             select(
                 models.Person,
@@ -38,6 +50,10 @@ class MS:
 
     @classmethod
     def outer_join(cls):
+        """
+        Not used scalars() to get access to models.* in result tuples
+        :return:
+        """
         result = session.execute(
             select(
                 models.Person,
